@@ -12,7 +12,8 @@
     "start": "pnpm -r run start",
     "lint": "pnpm -r run lint",
     "clean": "rimraf node_modules **/node_modules **/dist **/.next **/next-env.d.ts",
-    "reset": "rimraf node_modules **/node_modules **/dist **/.next **/next-env.d.ts pnpm-lock.yaml eliza.sqlite"
+    "reset": "rimraf node_modules **/node_modules **/dist **/.next **/next-env.d.ts pnpm-lock.yaml eliza.sqlite",
+    "letsgo": "pnpm i && pnpm run dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
