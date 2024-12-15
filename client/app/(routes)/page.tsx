@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactElement } from "react";
-import HelloWorld from "@/components/HelloWorld";
-import TelegramUser from "@/components/TelegramUser";
+import HelloWorld from "../_components/HelloWorld";
+import TelegramUser from "../_components/TelegramUser";
 
 export default function Home(): ReactElement {
   return (

@@ -13,9 +13,9 @@ const checkNodeEnv = (_req: Request, res: Response, next: NextFunction) => {
 
 //handles the collabland api token creation in .env
 const handlePostCollabLand = async (_req: Request, res: Response) => {
-  console.log("Getting hello Collab-thon...");
+  console.log("AI Agent Starter kit ...");
   res.status(200).json({
-    message: "Hello Collab-thon",
+    message: "AI Agent Starter kit",
     timestamp: new Date().toISOString(),
   });
 };
