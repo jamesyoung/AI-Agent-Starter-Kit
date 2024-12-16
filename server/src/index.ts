@@ -8,6 +8,7 @@ import { dirname } from "path";
 import { NgrokService } from "./services/ngrok.service.js";
 import { TelegramService } from "./services/telegram.service.js";
 import { IService } from "./services/base.service.js";
+import twitterRoutes from "./routes/twitter.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,13 +23,14 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors());
-
 app.use(express.json());
 app.use("/hello", helloRouter);
 
 // Register webhook endpoint first
 const telegramService = TelegramService.getInstance();
 app.use("/telegram/webhook", telegramService.getWebhookCallback());
+
+app.use('/twitter', twitterRoutes);
 
 app.listen(port, async () => {
   try {
