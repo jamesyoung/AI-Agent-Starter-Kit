@@ -52,13 +52,15 @@ export function TwitterLogin() {
   }
 
   return (
-    <button 
-      type="button"
-      onClick={handleTwitterLogin}
-      disabled={isLoading}
-      className="flex items-center justify-center gap-2 px-4 py-2 font-medium text-white bg-[#1DA1F2] rounded-lg hover:bg-[#1a91da] disabled:opacity-50"
-    >
-      {isLoading ? 'Connecting...' : 'Login with Twitter'}
-    </button>
+    <div className="flex items-center justify-center w-full my-4">
+      <button 
+        type="button"
+        onClick={handleTwitterLogin}
+        disabled={isLoading}
+        className="flex items-center justify-center gap-2 px-4 py-2 font-medium text-white bg-[#1DA1F2] rounded-lg hover:bg-[#1a91da] disabled:opacity-50"
+      >
+        {isLoading ? 'Connecting...' : 'Login with Twitter'}
+      </button>
+    </div>
   )
 }
