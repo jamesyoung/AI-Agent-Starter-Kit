@@ -1,47 +1,53 @@
 'use client'
 
+import { useEffect, useState } from 'react';
+
 export function TwitterLogin() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Check for OAuth callback token in URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    
+    if (token) {
+      // Store token in session storage
+      sessionStorage.setItem('twitter_token', token);
+      // Clean up URL parameters
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
   const handleTwitterLogin = async (e: React.MouseEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     try {
-      console.log('Attempting Twitter login...');
-      
-      const response = await fetch('/api/twitter/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-      });
+      // Request OAuth initialization from backend
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/twitter/auth/init`, 
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
+      // Store current URL for post-auth redirect
       const data = await response.json();
-      console.log('Auth response:', data);
+      sessionStorage.setItem('twitter_redirect_url', window.location.href);
       
-      if (data.token) {
-        sessionStorage.setItem('twitter_token', data.token);
-        console.log('Token saved to session storage');
-        
-        // You can now either:
-        // 1. Redirect to a protected page
-        // window.location.href = '/dashboard';
-        
-        // 2. Or trigger a state update to show authenticated content
-        // setIsAuthenticated(true);
-        
-        // 3. Or make an API call with the token
-        // const userInfo = await fetch('https://agents.ngrok.dev/twitter/me', {
-        //   headers: {
-        //     'Authorization': `Bearer ${data.token}`
-        //   }
-        // });
-      }
-    } catch (error) {
-      console.error('[TwitterLogin] Auth failed:', error);
+      // Redirect to Twitter OAuth page
+      window.location.href = data.authUrl;
+    } catch (error: unknown) {
+      setIsLoading(false);
+      // Error state could be handled here
     }
   }
 
@@ -49,9 +55,10 @@ export function TwitterLogin() {
     <button 
       type="button"
       onClick={handleTwitterLogin}
-      className="flex items-center justify-center gap-2 px-4 py-2 font-medium text-white bg-[#1DA1F2] rounded-lg hover:bg-[#1a91da]"
+      disabled={isLoading}
+      className="flex items-center justify-center gap-2 px-4 py-2 font-medium text-white bg-[#1DA1F2] rounded-lg hover:bg-[#1a91da] disabled:opacity-50"
     >
-      Login with Twitter
+      {isLoading ? 'Connecting...' : 'Login with Twitter'}
     </button>
   )
 }
