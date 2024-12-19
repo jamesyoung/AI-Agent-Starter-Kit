@@ -149,21 +149,32 @@ router.get('/success', async (req: Request, res: Response) => {
       throw new Error('No token provided');
     }
 
-    // Here you might want to:
-    // 1. Store the token in a session
-    // 2. Set it in a secure httpOnly cookie
-    // 3. Or send it in a way your frontend can securely handle it
+    // Fetch user profile with token
+    const profileResponse = await axios.get('https://api.twitter.com/2/users/me', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      params: {
+        'user.fields': 'description,profile_image_url,public_metrics,verified'
+      }
+    });
+
+    const profile = profileResponse.data;
     
     res.json({ 
       success: true, 
       message: 'Twitter authentication successful',
-      token 
+      token,
+      profile
     });
   } catch (error) {
     console.error('[Twitter Success] Error:', error);
+    if (error instanceof AxiosError) {
+      console.error('[Twitter Success] Response:', error.response?.data);
+    }
     res.status(400).json({ 
       success: false, 
-      error: 'Failed to process authentication token' 
+      error: 'Failed to fetch profile information' 
     });
   }
 });
