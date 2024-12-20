@@ -9,6 +9,7 @@ import { NgrokService } from "./services/ngrok.service.js";
 import { TelegramService } from "./services/telegram.service.js";
 import { IService } from "./services/base.service.js";
 import twitterRouter from './routes/twitter.js';
+import discordRouter from './routes/discord.js';
 import cookieParser from 'cookie-parser';
 
 // Convert ESM module URL to filesystem path
@@ -52,6 +53,10 @@ app.use("/telegram/webhook", telegramService.getWebhookCallback());
 
 // Mount Twitter OAuth routes
 app.use('/auth/twitter', twitterRouter);
+
+
+// Mount Discord OAuth routes
+app.use('/auth/discord', discordRouter);
 
 // No-op middleware (can be used for logging/debugging)
 app.use((_req, _res, next) => {

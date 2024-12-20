@@ -4,6 +4,7 @@ import { ReactElement } from "react";
 import HelloWorld from "../_components/HelloWorld";
 import TelegramUser from "../_components/TelegramUser";
 import { TwitterLogin } from "../_components/TwitterLogin";
+import { DiscordLogin } from "../_components/DiscordLogin";
 
 export default function Home(): ReactElement {
   return (
@@ -12,6 +13,7 @@ export default function Home(): ReactElement {
         <HelloWorld />
         <TelegramUser />
         <TwitterLogin />
+        <DiscordLogin />
       </div>
     </main>
   );
