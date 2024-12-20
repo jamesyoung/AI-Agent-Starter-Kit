@@ -54,3 +54,5 @@ pnpm-lock.yaml
 # token metadata
 token.jsonc
 token.json
+
+.vscode/

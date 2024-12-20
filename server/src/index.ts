@@ -51,7 +51,7 @@ const telegramService = TelegramService.getInstance();
 app.use("/telegram/webhook", telegramService.getWebhookCallback());
 
 // Mount Twitter OAuth routes
-app.use('/api/auth/twitter', twitterRouter);
+app.use('/auth/twitter', twitterRouter);
 
 // No-op middleware (can be used for logging/debugging)
 app.use((_req, _res, next) => {

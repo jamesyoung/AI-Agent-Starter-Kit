@@ -127,7 +127,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     codeVerifiers.delete(state as string);
 
     // Redirect to success
-    return res.redirect(302, `${process.env.NEXT_PUBLIC_API_URL}/api/auth/twitter/success?token=${tokenResponse.data.access_token}`);
+    return res.redirect(302, `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/success?token=${tokenResponse.data.access_token}`);
   } catch (error) {
     console.error('[Twitter Callback] Error:', error);
     if (error instanceof AxiosError) {
@@ -137,8 +137,15 @@ router.get('/callback', async (req: Request, res: Response) => {
       console.error('[Twitter Callback] Request URL:', error.config?.url);
       console.error('[Twitter Callback] Request params:', error.config?.params);
     }
-    return res.redirect(302, `${process.env.NEXT_PUBLIC_API_URL}/api/auth/twitter/error`);
+    return res.redirect(302, `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/error`);
   }
+});
+
+router.get('/error', (_req: Request, _res: Response) => {
+  _res.status(400).json({ 
+    success: false, 
+    error: 'Failed to fetch profile information' 
+  });
 });
 
 router.get('/success', async (req: Request, res: Response) => {
