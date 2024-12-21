@@ -11,6 +11,7 @@ import { IService } from "./services/base.service.js";
 import twitterRouter from './routes/twitter.js';
 import discordRouter from './routes/discord.js';
 import cookieParser from 'cookie-parser';
+import githubRouter from './routes/github.js';
 
 // Convert ESM module URL to filesystem path
 const __filename = fileURLToPath(import.meta.url);
@@ -54,9 +55,11 @@ app.use("/telegram/webhook", telegramService.getWebhookCallback());
 // Mount Twitter OAuth routes
 app.use('/auth/twitter', twitterRouter);
 
-
 // Mount Discord OAuth routes
 app.use('/auth/discord', discordRouter);
+
+// Mount GitHub OAuth routes
+app.use('/auth/github', githubRouter);
 
 // No-op middleware (can be used for logging/debugging)
 app.use((_req, _res, next) => {

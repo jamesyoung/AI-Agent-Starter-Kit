@@ -5,6 +5,7 @@ import HelloWorld from "../_components/HelloWorld";
 import TelegramUser from "../_components/TelegramUser";
 import { TwitterLogin } from "../_components/TwitterLogin";
 import { DiscordLogin } from "../_components/DiscordLogin";
+import { GithubLogin } from "../_components/GithubLogin";
 
 export default function Home(): ReactElement {
   return (
@@ -14,6 +15,7 @@ export default function Home(): ReactElement {
         <TelegramUser />
         <TwitterLogin />
         <DiscordLogin />
+        <GithubLogin />
       </div>
     </main>
   );
