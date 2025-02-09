@@ -43,6 +43,7 @@ import { Bot, Context } from "grammy";
 import { bootstrapPlugin } from "@ai16z/plugin-bootstrap";
 import { collablandPlugin } from "../plugins/collabland.plugin.js";
 import { StorageService } from "../plugins/gated-storage-plugin/services/storage.service.js";
+import { McpService } from "./mcp.service.js";
 
 const MAX_MESSAGE_LENGTH = 4096; // Telegram's max message length
 
@@ -528,6 +529,7 @@ export class ElizaService extends BaseService {
   private runtime: AgentRuntime;
   public messageManager: MessageManager;
   private bot: Bot<Context>;
+  private mcpService: McpService;
 
   private constructor(bot: Bot<Context>) {
     super();
@@ -605,6 +607,7 @@ export class ElizaService extends BaseService {
       this.runtime.registerMemoryManager(onChainMemory);
       this.messageManager = new MessageManager(bot, this.runtime);
       this.bot = bot;
+      this.mcpService = McpService.getInstance();
     } catch (error) {
       console.error("Failed to initialize Eliza runtime:", error);
       throw error;
@@ -620,17 +623,43 @@ export class ElizaService extends BaseService {
 
   public async start(): Promise<void> {
     try {
-      // make sure this gets initialized before anything tries to use it in the plugin.
-      // not sure where this should actually be hooked up
       await StorageService.getInstance().start();
     } catch (err) {
       elizaLogger.warn("[eliza] gated storage service is unavailable");
     }
+
     try {
-      //register AI based command handlers here
+      // Register command handlers
       this.bot.command("eliza", (ctx) =>
         this.messageManager.handleMessage(ctx)
       );
+
+      // Add direct /secret command
+      this.bot.command("secret", async (ctx) => {
+        try {
+          const secret = await this.mcpService.getRandomSecret();
+          await ctx.reply(secret);
+        } catch (error) {
+          console.error("[ELIZA] Failed to get secret:", error);
+          await ctx.reply("Sorry, I couldn't get a secret right now.");
+        }
+      });
+
+      // Add natural language handler for secrets
+      this.bot.on("message:text", async (ctx) => {
+        const text = ctx.message.text.toLowerCase();
+
+        if (text.includes("secret") && text.includes("collab.land")) {
+          try {
+            const secret = await this.mcpService.getRandomSecret();
+            await ctx.reply(secret);
+          } catch (error) {
+            console.error("[ELIZA] Failed to get secret:", error);
+            await ctx.reply("Sorry, I couldn't get a secret right now.");
+          }
+        }
+      });
+
       elizaLogger.info("Eliza service started successfully");
     } catch (error) {
       console.error("Failed to start Eliza service:", error);

@@ -20,7 +20,7 @@ export class McpService extends BaseService {
   private sseResponse: Response | null = null;
   private lastMessageTime: number = 0;
 
-  private secrets = [
+  public static readonly SECRETS = [
     "Collab.Land was a no-code app at first",
     "The first version was built in 2 weeks",
     "It started as a side project",
@@ -86,12 +86,30 @@ export class McpService extends BaseService {
   private setupTools(): void {
     this.server.tool("hello", {}, async () => {
       const randomSecret =
-        this.secrets[Math.floor(Math.random() * this.secrets.length)];
+        McpService.SECRETS[
+          Math.floor(Math.random() * McpService.SECRETS.length)
+        ];
       return {
         content: [
           {
             type: "text",
             text: randomSecret,
+          },
+        ],
+      };
+    });
+
+    // Register secret tool
+    this.server.tool("secret", {}, async () => {
+      const randomSecret =
+        McpService.SECRETS[
+          Math.floor(Math.random() * McpService.SECRETS.length)
+        ];
+      return {
+        content: [
+          {
+            type: "text",
+            text: `🤫 ${randomSecret}`,
           },
         ],
       };
@@ -233,5 +251,15 @@ export class McpService extends BaseService {
     };
 
     return streamReq;
+  }
+
+  public getServer(): McpServer {
+    return this.server;
+  }
+
+  public async getRandomSecret(): Promise<string> {
+    return `🤫 ${
+      McpService.SECRETS[Math.floor(Math.random() * McpService.SECRETS.length)]
+    }`;
   }
 }
