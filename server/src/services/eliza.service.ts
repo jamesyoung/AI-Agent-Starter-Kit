@@ -621,6 +621,17 @@ export class ElizaService extends BaseService {
     return ElizaService.instance;
   }
 
+  private async handleSecretRequest(ctx: Context): Promise<void> {
+    try {
+      console.log("[ELIZA] 🔄 Forwarding secret request to MCP");
+      const secret = await this.mcpService.handleSecretRequest();
+      await ctx.reply(secret);
+    } catch (error) {
+      console.error("[ELIZA] ❌ Failed to get secret:", error);
+      await ctx.reply("Sorry, I couldn't get a secret right now.");
+    }
+  }
+
   public async start(): Promise<void> {
     try {
       await StorageService.getInstance().start();
@@ -629,40 +640,83 @@ export class ElizaService extends BaseService {
     }
 
     try {
+      console.log("[ELIZA] 🚀 Starting Eliza service...");
+
       // Register command handlers
-      this.bot.command("eliza", (ctx) =>
-        this.messageManager.handleMessage(ctx)
-      );
+      this.bot.command("eliza", async (ctx) => {
+        if (!ctx.message) {
+          console.log("[ELIZA] ⚠️ No message in context");
+          return;
+        }
+
+        console.log("[ELIZA] 🤖 Eliza command received:", ctx.message.text);
+        const text = ctx.message.text.toLowerCase();
+
+        // Check if this is a secret request
+        if (
+          text.includes("tell") &&
+          text.includes("secret") &&
+          text.includes("collab.land")
+        ) {
+          console.log("[ELIZA] 🎯 Secret request detected in command");
+          try {
+            console.log("[ELIZA] 📤 Requesting secret from MCP service");
+            const secret = await this.mcpService.getRandomSecret();
+            console.log("[ELIZA] 📥 Received from MCP:", secret);
+            await ctx.reply(secret);
+            console.log("[ELIZA] ✅ Secret sent successfully");
+            return;
+          } catch (error) {
+            console.error("[ELIZA] ❌ Error handling secret request:", error);
+            await ctx.reply("Sorry, I couldn't get a secret right now.");
+            return;
+          }
+        }
+
+        // If not a secret request, proceed with normal handling
+        console.log("[ELIZA] ⏭️ Proceeding with normal message handling");
+        return this.messageManager.handleMessage(ctx);
+      });
 
       // Add direct /secret command
       this.bot.command("secret", async (ctx) => {
+        console.log("[ELIZA] 🔑 Direct secret command received");
         try {
+          console.log("[ELIZA] 📤 Requesting secret from MCP service");
           const secret = await this.mcpService.getRandomSecret();
+          console.log("[ELIZA] 📥 Received from MCP:", secret);
           await ctx.reply(secret);
+          console.log("[ELIZA] ✅ Secret sent successfully");
         } catch (error) {
-          console.error("[ELIZA] Failed to get secret:", error);
+          console.error("[ELIZA] ❌ Error handling secret request:", error);
           await ctx.reply("Sorry, I couldn't get a secret right now.");
         }
       });
 
-      // Add natural language handler for secrets
+      // Register message handler that integrates with MCP
       this.bot.on("message:text", async (ctx) => {
-        const text = ctx.message.text.toLowerCase();
+        if (!ctx.message) return;
 
-        if (text.includes("secret") && text.includes("collab.land")) {
-          try {
-            const secret = await this.mcpService.getRandomSecret();
-            await ctx.reply(secret);
-          } catch (error) {
-            console.error("[ELIZA] Failed to get secret:", error);
-            await ctx.reply("Sorry, I couldn't get a secret right now.");
-          }
+        const text = ctx.message.text.toLowerCase();
+        console.log("[ELIZA] 📨 Processing message:", text);
+
+        // Check for secret request pattern
+        if (
+          text.includes("tell") &&
+          text.includes("secret") &&
+          text.includes("collab.land")
+        ) {
+          await this.handleSecretRequest(ctx);
+          return;
         }
+
+        // Normal Eliza flow
+        return this.messageManager.handleMessage(ctx);
       });
 
-      elizaLogger.info("Eliza service started successfully");
+      console.log("[ELIZA] ✅ Service started successfully");
     } catch (error) {
-      console.error("Failed to start Eliza service:", error);
+      console.error("[ELIZA] 💥 Failed to start service:", error);
       throw error;
     }
   }

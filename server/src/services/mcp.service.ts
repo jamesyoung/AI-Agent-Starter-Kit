@@ -84,36 +84,41 @@ export class McpService extends BaseService {
   }
 
   private setupTools(): void {
-    this.server.tool("hello", {}, async () => {
-      const randomSecret =
-        McpService.SECRETS[
-          Math.floor(Math.random() * McpService.SECRETS.length)
-        ];
-      return {
-        content: [
-          {
-            type: "text",
-            text: randomSecret,
-          },
-        ],
-      };
-    });
+    console.log("[MCP] 🛠️ Setting up tools...");
 
-    // Register secret tool
-    this.server.tool("secret", {}, async () => {
-      const randomSecret =
-        McpService.SECRETS[
-          Math.floor(Math.random() * McpService.SECRETS.length)
-        ];
-      return {
-        content: [
-          {
-            type: "text",
-            text: `🤫 ${randomSecret}`,
-          },
-        ],
-      };
-    });
+    try {
+      console.log("[MCP] 📝 Registering hello tool");
+      this.server.tool("hello", {}, async () => {
+        console.log("[MCP] 👋 Hello tool called");
+        const randomSecret =
+          McpService.SECRETS[
+            Math.floor(Math.random() * McpService.SECRETS.length)
+          ];
+        console.log("[MCP] 📤 Hello tool returning:", randomSecret);
+        return {
+          content: [{ type: "text", text: randomSecret }],
+        };
+      });
+
+      console.log("[MCP] 📝 Registering secret tool");
+      this.server.tool("secret", {}, async () => {
+        console.log("[MCP] 🤫 Secret tool called");
+        const secret = await this.getRandomSecret();
+        return {
+          content: [
+            {
+              type: "text",
+              text: secret,
+            },
+          ],
+        };
+      });
+
+      console.log("[MCP] ✅ Tools setup complete");
+    } catch (error) {
+      console.error("[MCP] 💥 Error setting up tools:", error);
+      throw error;
+    }
   }
 
   public async handleSSE(_req: Request, res: Response): Promise<void> {
@@ -258,8 +263,54 @@ export class McpService extends BaseService {
   }
 
   public async getRandomSecret(): Promise<string> {
-    return `🤫 ${
-      McpService.SECRETS[Math.floor(Math.random() * McpService.SECRETS.length)]
-    }`;
+    try {
+      console.log("[MCP] 🎲 getRandomSecret called");
+
+      // Validate secrets array
+      if (!McpService.SECRETS) {
+        console.error("[MCP] ❌ SECRETS array is undefined");
+        throw new Error("SECRETS array is undefined");
+      }
+
+      if (McpService.SECRETS.length === 0) {
+        console.error("[MCP] ❌ SECRETS array is empty");
+        throw new Error("No secrets configured");
+      }
+
+      // Get random secret
+      const index = Math.floor(Math.random() * McpService.SECRETS.length);
+      console.log("[MCP] 📊 Selecting secret:", {
+        totalSecrets: McpService.SECRETS.length,
+        selectedIndex: index,
+      });
+
+      const secret = McpService.SECRETS[index];
+      console.log("[MCP] 📜 Selected secret:", secret);
+
+      // Format response
+      const formattedSecret = `🤫 ${secret}`;
+      console.log("[MCP] 🎁 Formatted response:", formattedSecret);
+
+      return formattedSecret;
+    } catch (error) {
+      console.error("[MCP] 💥 Error in getRandomSecret:", {
+        error,
+        secretsAvailable: !!McpService.SECRETS,
+        secretsCount: McpService.SECRETS?.length ?? 0,
+      });
+      throw error;
+    }
+  }
+
+  public async handleSecretRequest(): Promise<string> {
+    console.log("[MCP] 📥 Handling secret request");
+    try {
+      const secret = await this.getRandomSecret();
+      console.log("[MCP] 📤 Returning secret:", secret);
+      return secret;
+    } catch (error) {
+      console.error("[MCP] 💥 Failed to handle secret request:", error);
+      throw error;
+    }
   }
 }
