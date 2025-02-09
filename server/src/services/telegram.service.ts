@@ -1,6 +1,5 @@
 import { Bot, webhookCallback } from "grammy";
 import { BaseService } from "./base.service.js";
-import { ElizaService } from "./eliza.service.js";
 import {
   AnyType,
   getCollablandApiUrl,
@@ -34,7 +33,6 @@ export class TelegramService extends BaseService {
   private static instance: TelegramService;
   private bot: Bot;
   private webhookUrl: string;
-  private elizaService: ElizaService;
   private nGrokService: NgrokService;
   private twitterService?: TwitterService;
 
@@ -47,7 +45,6 @@ export class TelegramService extends BaseService {
       this.webhookUrl = `${webhookUrl}/telegram/webhook`;
     }
     this.bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
-    this.elizaService = ElizaService.getInstance(this.bot);
   }
 
   public static getInstance(webhookUrl?: string): TelegramService {
@@ -70,6 +67,10 @@ export class TelegramService extends BaseService {
     });
   }
 
+  public getBot(): Bot {
+    return this.bot;
+  }
+
   public async start(): Promise<void> {
     const client = axios.create({
       baseURL: getCollablandApiUrl(),
@@ -81,8 +82,7 @@ export class TelegramService extends BaseService {
       timeout: 5 * 60 * 1000,
     });
     try {
-      //all command descriptions can be added here
-      this.bot.api.setMyCommands([
+      await this.bot.api.setMyCommands([
         {
           command: "start",
           description: "Add any hello world functionality to your bot",
@@ -91,12 +91,12 @@ export class TelegramService extends BaseService {
         { command: "eliza", description: "Talk to the AI agent" },
         { command: "lit", description: "Execute a Lit action" },
       ]);
-      // all command handlers can be registered here
+
       this.bot.command("start", (ctx) => ctx.reply("Hello!"));
       this.bot.catch(async (error) => {
         console.error("Telegram bot error:", error);
       });
-      await this.elizaService.start();
+
       // required when starting server for telegram webooks
       this.nGrokService = await NgrokService.getInstance();
       try {
