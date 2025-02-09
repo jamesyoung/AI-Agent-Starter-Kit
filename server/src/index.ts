@@ -14,6 +14,7 @@ import cookieParser from "cookie-parser";
 import githubRouter from "./routes/github.js";
 import { AnyType } from "./utils.js";
 import { isHttpError } from "http-errors";
+import { McpService } from "./services/mcp.service.js";
 
 // Convert ESM module URL to filesystem path
 const __filename = fileURLToPath(import.meta.url);
@@ -56,7 +57,15 @@ app.use("/auth/discord", discordRouter);
 // Mount GitHub OAuth routes
 app.use("/auth/github", githubRouter);
 
-// 404 handler
+// Initialize MCP service
+const mcpService = new McpService();
+services.push(mcpService);
+
+// Mount MCP endpoint
+app.use("/mcp", mcpService.getHandler());
+await mcpService.start();
+
+// 404 and error handlers after all routes
 app.use((_req: Request, _res: Response, _next: NextFunction) => {
   _res.status(404).json({
     message: `Route ${_req.method} ${_req.url} not found`,
