@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import helloRouter from "./routes/hello.js";
@@ -14,6 +14,8 @@ import cookieParser from "cookie-parser";
 import githubRouter from "./routes/github.js";
 import { AnyType } from "./utils.js";
 import { isHttpError } from "http-errors";
+import { router as primusRouter } from "./routes/primus.js";
+import { PrimusService } from "./services/primus.service.js";
 
 // Convert ESM module URL to filesystem path
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +31,7 @@ dotenv.config({
 
 // Initialize Express app
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 8081;
 
 // Configure CORS with ALL allowed origins
 app.use(cors());
@@ -37,6 +39,12 @@ app.use(cors());
 // Parse JSON request bodies
 app.use(express.json());
 app.use(cookieParser());
+
+// Debug middleware to log all requests
+app.use((req, _res, next) => {
+  console.log(`[SERVER] ${req.method} ${req.url}`);
+  next();
+});
 
 // Mount hello world test route
 app.use("/hello", helloRouter);
@@ -55,25 +63,27 @@ app.use("/auth/discord", discordRouter);
 
 // Mount GitHub OAuth routes
 app.use("/auth/github", githubRouter);
+// Mount Primus routes
+app.use("/api/primus", primusRouter);
 
 // 404 handler
-app.use((_req: Request, _res: Response, _next: NextFunction) => {
-  _res.status(404).json({
-    message: `Route ${_req.method} ${_req.url} not found`,
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    message: `Route ${req.method} ${req.url} not found`,
   });
 });
 
-app.use((_err: AnyType, _req: Request, _res: Response, _next: NextFunction) => {
-  if (isHttpError(_err)) {
-    _res.status(_err.statusCode).json({
-      message: _err.message,
+app.use((err: AnyType, _req: Request, res: Response) => {
+  if (isHttpError(err)) {
+    res.status(err.statusCode).json({
+      message: err.message,
     });
-  } else if (_err instanceof Error) {
-    _res.status(500).json({
-      message: `Internal Server Error: ${_err.message}`,
+  } else if (err instanceof Error) {
+    res.status(500).json({
+      message: `Internal Server Error: ${err.message}`,
     });
   } else {
-    _res.status(500).json({
+    res.status(500).json({
       message: `Internal Server Error`,
     });
   }
@@ -82,8 +92,15 @@ app.use((_err: AnyType, _req: Request, _res: Response, _next: NextFunction) => {
 // Start server and initialize services
 app.listen(port, async () => {
   try {
-    console.log(`Server running on PORT: ${port}`);
-    console.log("Server Environment:", process.env.NODE_ENV);
+    console.log(`[SERVER] 🚀 Server running on port ${port}`);
+    console.log(`[SERVER] 📍 Routes mounted:`);
+    console.log(`[SERVER]   - /api/primus`);
+
+    // Initialize Primus service
+    const primusService = PrimusService.getInstance();
+    await primusService.start();
+    services.push(primusService);
+    console.log("[SERVER] ✅ Primus Service initialized");
 
     // Start ngrok tunnel for development
     const ngrokService = NgrokService.getInstance();
