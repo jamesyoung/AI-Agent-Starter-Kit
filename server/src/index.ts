@@ -93,8 +93,6 @@ app.use((err: AnyType, _req: Request, res: Response) => {
 app.listen(port, async () => {
   try {
     console.log(`[SERVER] 🚀 Server running on port ${port}`);
-    console.log(`[SERVER] 📍 Routes mounted:`);
-    console.log(`[SERVER]   - /api/primus`);
 
     // Initialize Primus service
     const primusService = PrimusService.getInstance();

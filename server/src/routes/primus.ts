@@ -3,9 +3,9 @@ import { PrimusService } from "../services/primus.service.js";
 
 export const router = express.Router();
 
-router.get("/sign", async (req: express.Request, res: express.Response) => {
+router.post("/sign", async (req: express.Request, res: express.Response) => {
   console.log("[PRIMUS] Received request:", {
-    query: req.query,
+    body: req.body,
     path: req.path,
     url: req.url,
     baseUrl: req.baseUrl,
@@ -20,22 +20,17 @@ router.get("/sign", async (req: express.Request, res: express.Response) => {
       await primusService.start();
     }
 
-    const { signParams } = req.query;
+    // Get params from request body instead of query
+    const params = req.body;
 
-    if (!signParams) {
-      console.log("[PRIMUS] Missing signParams");
-      res.status(400).json({ error: "Missing signParams" });
+    if (!params) {
+      console.log("[PRIMUS] Missing request body");
+      res.status(400).json({ error: "Missing request body" });
       return;
     }
 
-    // Create a valid JSON object for signing
-    const jsonParams = {
-      message: signParams,
-      timestamp: Date.now(),
-    };
-
-    console.log("[PRIMUS] Signing params:", jsonParams);
-    const result = await primusService.sign(JSON.stringify(jsonParams));
+    // Pass the entire params object as JSON string
+    const result = await primusService.sign(JSON.stringify(params));
 
     console.log("[PRIMUS] Sign result:", result);
     res.json({ signResult: result });
