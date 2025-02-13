@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import helloRouter from "./routes/hello.js";
@@ -14,6 +14,7 @@ import cookieParser from "cookie-parser";
 import githubRouter from "./routes/github.js";
 import { AnyType } from "./utils.js";
 import { isHttpError } from "http-errors";
+import axisRouter from "./routes/axis.js";
 
 // Convert ESM module URL to filesystem path
 const __filename = fileURLToPath(import.meta.url);
@@ -56,14 +57,17 @@ app.use("/auth/discord", discordRouter);
 // Mount GitHub OAuth routes
 app.use("/auth/github", githubRouter);
 
+// Mount Axis Finance API routes
+app.use("/api/axis", axisRouter);
+
 // 404 handler
-app.use((_req: Request, _res: Response, _next: NextFunction) => {
+app.use((_req: Request, _res: Response) => {
   _res.status(404).json({
     message: `Route ${_req.method} ${_req.url} not found`,
   });
 });
 
-app.use((_err: AnyType, _req: Request, _res: Response, _next: NextFunction) => {
+app.use((_err: AnyType, _req: Request, _res: Response) => {
   if (isHttpError(_err)) {
     _res.status(_err.statusCode).json({
       message: _err.message,

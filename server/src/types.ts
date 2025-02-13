@@ -59,3 +59,8 @@ export interface IUserOperationReceipt {
   receipt?: ITransactionReceipt;
   logs?: ILog[];
 }
+
+export interface BaseService {
+  start(): Promise<void>;
+  stop(): Promise<void>;
+}

@@ -1,12 +1,25 @@
 import "@/styles/globals.css";
 import { Inter } from "next/font/google";
+import { Providers } from "./_components/Providers";
+import { metadata } from "./metadata";
+import { validateEnv } from "./config/validate-env";
+
+// Debug environment variables
+if (process.env.NODE_ENV === 'development') {
+  console.log("[Layout] Environment:", {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NODE_ENV: process.env.NODE_ENV
+  });
+}
+
+// Validate environment variables
+if (process.env.NODE_ENV === 'development') {
+  validateEnv();
+}
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata = {
-  title: "Collab.Land Starter Kit",
-  description: "Get started with Collab.Land",
-};
+export { metadata };
 
 export default function RootLayout({
   children,
@@ -16,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <body className={`${inter.className} bg-white min-h-screen`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
