@@ -8,7 +8,7 @@ import { dirname } from "path";
 import { NgrokService } from "./services/ngrok.service.js";
 import { TelegramService } from "./services/telegram.service.js";
 import { IService } from "./services/base.service.js";
-import twitterRouter from "./routes/twitter.js";
+// import twitterRouter from "./routes/twitter.js";
 import discordRouter from "./routes/discord.js";
 import cookieParser from "cookie-parser";
 import githubRouter from "./routes/github.js";
@@ -50,7 +50,7 @@ const telegramService = TelegramService.getInstance();
 app.use("/telegram/webhook", telegramService.getWebhookCallback());
 
 // Mount Twitter OAuth routes
-app.use("/auth/twitter", twitterRouter);
+// app.use("/auth/twitter", twitterRouter);
 
 // Mount Discord OAuth routes
 app.use("/auth/discord", discordRouter);

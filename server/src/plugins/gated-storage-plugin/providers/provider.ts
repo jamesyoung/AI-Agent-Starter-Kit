@@ -4,8 +4,7 @@ import { StorageService } from "../services/storage.service.js";
 export const gateDataProvider: Provider = {
   get: async (
     _runtime: IAgentRuntime,
-    message: Memory,
-    _state?: State
+    message: Memory
   ): Promise<Error | string> => {
     try {
       if (!message.embedding) {

@@ -63,8 +63,7 @@ export const gateDataAction: Action = {
 
   validate: async (
     _runtime: IAgentRuntime,
-    message: Memory,
-    _state?: State
+    message: Memory
   ): Promise<boolean> => {
     return (
       StorageService.getInstance().isConfigured() &&
