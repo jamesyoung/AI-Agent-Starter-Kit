@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "predev": "node bin/validate-env && node bin/check-x-login",
+    "predev": "node bin/validate-env",
     "dev": "tsc-watch --noClear --onEmitDebounceMs 15000 --onSuccess \"pnpm run www-dev\"",
     "build": "tsc && pnpm run generate-types",
     "start": "node dist/index.js",
@@ -34,9 +34,13 @@
     "http-errors": "^2.0.0",
     "jsonc-parser": "^3.3.1",
     "mineflayer": "^4.26.0",
+    "mineflayer-armor-manager": "^2.0.1",
     "mineflayer-pathfinder": "^2.4.5",
+    "mineflayer-pvp": "^1.3.2",
     "node-cache": "^5.1.2",
     "prettier": "^3.4.2",
+    "prismarine-chat": "^1.11.0",
+    "prismarine-item": "^1.16.0",
     "tsc-watch": "^6.2.1"
   },
   "devDependencies": {

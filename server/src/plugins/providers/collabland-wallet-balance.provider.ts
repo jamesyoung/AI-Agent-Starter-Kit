@@ -5,11 +5,7 @@ import { chainMap } from "../../utils.js";
 import { BotAccountMemory } from "../types.js";
 
 export class CollabLandWalletBalanceProvider implements Provider {
-  async get(
-    _runtime: IAgentRuntime,
-    _message: Memory,
-    _state?: State
-  ): Promise<AnyType> {
+  async get(_runtime: IAgentRuntime, _message: Memory): Promise<AnyType> {
     let chain: string | null = null;
     const onChainMemoryManager = _runtime.getMemoryManager("onchain")!;
     // this is newest to oldest

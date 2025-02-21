@@ -5,7 +5,6 @@
   "scripts": {
     "gen-seed": "node ./server/scripts/seed.mjs",
     "deploy-model": "node ./server/scripts/deploy-model.mjs",
-    "login-x": "pnpm --filter server run login-x",
     "preinstall": "npx only-allow pnpm",
     "predev": "pnpm --filter client run predev && pnpm --filter server run predev && pnpm --filter lit-actions run predev",
     "dev": "node scripts/dev",
